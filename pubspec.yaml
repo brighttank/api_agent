@@ -5,7 +5,7 @@ repository: https://github.com/schultek/api_agent
 issue_tracker: https://github.com/schultek/api_agent/issues
 
 dependencies:
-  analyzer: ^6.3.0
+  analyzer: ^5.13.0 # version 6 require meta 1.11 which breaks flutter compatibility
   build: ^2.4.1
   collection: ^1.17.2 # pinned by flutter
   dart_style: ^2.3.3
