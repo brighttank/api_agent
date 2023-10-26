@@ -7,7 +7,7 @@ issue_tracker: https://github.com/schultek/api_agent/issues
 dependencies:
   analyzer: ^6.3.0
   build: ^2.4.1
-  collection: ^1.17.1
+  collection: ^1.17.2 # pinned by flutter
   dart_style: ^2.3.3
   http: ^1.1.0
   path: ^1.8.3
