@@ -21,7 +21,7 @@ class MethodEndpointGenerator extends EndpointGenerator {
     var endpointName = name + 'Endpoint';
 
     if (endpoints.contains(endpointName)) {
-      endpointName = method.enclosingElement.name! + endpointName;
+      endpointName = method.enclosingElement3.name! + endpointName;
     }
 
     if (endpoints.contains(endpointName)) {
