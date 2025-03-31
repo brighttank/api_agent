@@ -33,7 +33,7 @@ class ServerApiBuilder {
       }
     }
 
-    return DartFormatter().format('${imports.write()}\n'
+    return DartFormatter(languageVersion: DartFormatter.latestLanguageVersion).format('${imports.write()}\n'
         '${exports.write()}\n'
         '${output.toString()}');
   }
