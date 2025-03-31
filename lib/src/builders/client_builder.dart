@@ -28,9 +28,10 @@ class ClientApiBuilder {
       }
     }
 
-    return DartFormatter().format('${imports.write()}\n'
-        '${exports.write()}\n'
-        '${clients.values.join('\n')}');
+    return DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+        .format('${imports.write()}\n'
+            '${exports.write()}\n'
+            '${clients.values.join('\n')}');
   }
 
   void generateClient(ClassElement element, Map<String, String> clients,
