@@ -17,11 +17,11 @@ class MethodEndpointGenerator extends EndpointGenerator {
   late String endpointClassName = _getEndpointClassName();
 
   String _getEndpointClassName() {
-    var name = CaseStyle.pascalCase.transform(method.name);
+    var name = CaseStyle.pascalCase.transform(method.name ?? '');
     var endpointName = name + 'Endpoint';
 
     if (endpoints.contains(endpointName)) {
-      endpointName = method.enclosingElement3.name! + endpointName;
+      endpointName = (method.enclosingElement?.name ?? '') + endpointName;
     }
 
     if (endpoints.contains(endpointName)) {
@@ -33,7 +33,7 @@ class MethodEndpointGenerator extends EndpointGenerator {
   }
 
   @override
-  late String propertyName = method.name;
+  late String propertyName = method.name ?? '';
 
   late String methodDefinition = getHandlerDefinition();
 
@@ -62,7 +62,7 @@ class MethodEndpointGenerator extends EndpointGenerator {
 
     output.write('(');
 
-    for (var param in method.parameters) {
+    for (var param in method.formalParameters) {
       output.write('${param.type.getDisplayString(withNullability: true)} '
           '${param.name}, ');
     }
@@ -90,7 +90,7 @@ class MethodEndpointGenerator extends EndpointGenerator {
       output.write('${method.name}(');
     }
 
-    for (var param in method.parameters) {
+    for (var param in method.formalParameters) {
       output.write('r.get');
       if (param.hasDefaultValue ||
           param.type.nullabilitySuffix == NullabilitySuffix.question) {
@@ -118,7 +118,7 @@ class MethodEndpointGenerator extends EndpointGenerator {
 
     output.write('(');
 
-    for (var param in method.parameters) {
+    for (var param in method.formalParameters) {
       output.write('${param.name}, ');
     }
 

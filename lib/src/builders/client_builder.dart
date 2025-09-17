@@ -21,7 +21,7 @@ class ClientApiBuilder {
     await for (var library in buildStep.resolver.libraries) {
       if (library.isInSdk) continue;
 
-      for (var element in library.units.expand((u) => u.classes)) {
+      for (var element in library.classes) {
         if (annotationChecker.hasAnnotationOf(element)) {
           generateClient(element, clients, imports);
         }
@@ -37,7 +37,7 @@ class ClientApiBuilder {
   void generateClient(ClassElement element, Map<String, String> clients,
       ImportsBuilder imports) {
     if (clients.containsKey(element.name)) return;
-    clients[element.name] = '';
+    clients[element.name ?? ''] = '';
 
     var annotation = annotationChecker.firstAnnotationOf(element);
 
@@ -51,7 +51,7 @@ class ClientApiBuilder {
       var codec = getMetaProperty(element, 'codec');
       output.write(', $codec');
       var uri =
-          annotation.getField('codec')!.type?.element?.library?.source.uri;
+          annotation.getField('codec')!.type?.element?.library?.uri;
       if (uri != null) imports.add(uri);
     }
 
@@ -65,11 +65,11 @@ class ClientApiBuilder {
     for (var method in element.methods) {
       if (method.isAbstract) {
         methodOutput.write('\n'
-            '  ${method.getDisplayString(withNullability: true)} => \n'
+            '  ${method.name}\n'
             '    request(\'${method.name}\', {');
 
-        for (var param in method.parameters) {
-          if (method.parameters.first != param) {
+        for (var param in method.formalParameters) {
+          if (method.formalParameters.first != param) {
             methodOutput.write(', ');
           }
           methodOutput.write("'${param.name}': ${param.name}");
@@ -99,8 +99,8 @@ class ClientApiBuilder {
 
     output.write(methodOutput);
 
-    for (var accessor in element.accessors) {
-      if (accessor.isAbstract && accessor.isGetter) {
+    for (var accessor in element.getters) {
+      if (accessor.isAbstract) {
         var elem = accessor.type.returnType.element;
         if (elem == null || elem is! ClassElement) continue;
         output.writeln('\n'
@@ -112,6 +112,6 @@ class ClientApiBuilder {
 
     output.writeln('}');
 
-    clients[element.name] = output.toString();
+    clients[element.name ?? ''] = output.toString();
   }
 }

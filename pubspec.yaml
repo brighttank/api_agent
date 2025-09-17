@@ -5,15 +5,15 @@ repository: https://github.com/schultek/api_agent
 issue_tracker: https://github.com/schultek/api_agent/issues
 
 dependencies:
-  analyzer: ^7.0.0
-  build: ^2.4.1
+  analyzer: ^8.0.0
+  build: ^4.0.0
   collection: ^1.17.2 # pinned by flutter
   dart_style: ^3.0.0
   http: ^1.1.0
   path: ^1.8.3
   shelf: ^1.4.1
   shelf_router: ^1.1.4
-  source_gen: ^2.0.0
+  source_gen: ^4.0.1
   type_plus: ^2.1.0
 
 dev_dependencies:

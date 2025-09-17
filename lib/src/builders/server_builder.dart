@@ -25,7 +25,7 @@ class ServerApiBuilder {
     await for (var library in buildStep.resolver.libraries) {
       if (library.isInSdk) continue;
 
-      for (var element in library.units.expand((u) => u.classes)) {
+      for (var element in library.classes) {
         if (annotationChecker.hasAnnotationOf(element)) {
           ApiEndpointGenerator(element, null)
               .generate(output, endpoints, imports);
@@ -33,8 +33,9 @@ class ServerApiBuilder {
       }
     }
 
-    return DartFormatter(languageVersion: DartFormatter.latestLanguageVersion).format('${imports.write()}\n'
-        '${exports.write()}\n'
-        '${output.toString()}');
+    return DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+        .format('${imports.write()}\n'
+            '${exports.write()}\n'
+            '${output.toString()}');
   }
 }

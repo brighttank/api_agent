@@ -16,7 +16,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
   late String endpointClassName = '${element.name}Endpoint';
 
   @override
-  late String propertyName = accessor!.name;
+  late String propertyName = accessor!.name ?? '';
 
   @override
   late String abstractMemberDefinition =
@@ -29,7 +29,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
   void generate(
       StringBuffer output, Set<String> endpoints, ImportsBuilder imports) {
     if (endpoints.contains(element.name)) return;
-    endpoints.add(element.name);
+    endpoints.add(element.name ?? '');
 
     var annotation = annotationChecker.firstAnnotationOf(element);
 
@@ -55,7 +55,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
       var codec = getMetaProperty(element, 'codec', imports);
       output.write('.withCodec($codec)');
       var uri =
-          annotation.getField('codec')!.type?.element?.library?.source.uri;
+          annotation.getField('codec')!.type?.element?.library?.uri;
       if (uri != null) imports.add(uri);
     }
 
@@ -73,8 +73,8 @@ class ApiEndpointGenerator extends EndpointGenerator {
       }
     }
 
-    for (var accessor in element.accessors) {
-      if (accessor.isAbstract && accessor.isGetter) {
+    for (var accessor in element.getters) {
+      if (accessor.isAbstract) {
         var elem = accessor.type.returnType.element;
         if (elem == null || elem is! ClassElement) continue;
         children.add(ApiEndpointGenerator(elem, accessor));

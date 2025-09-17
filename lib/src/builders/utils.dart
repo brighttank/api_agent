@@ -7,7 +7,7 @@ import 'package:source_gen/source_gen.dart';
 import '../../api_agent.dart';
 import 'imports_builder.dart';
 
-const annotationChecker = TypeChecker.fromRuntime(ApiDefinition);
+const annotationChecker = TypeChecker.typeNamed(ApiDefinition);
 
 String? getMetaProperty(Element annotatedElement, String property,
     [ImportsBuilder? imports]) {
@@ -48,7 +48,7 @@ extension GetNode on Element {
   AstNode? getNode() {
     var result = session?.getParsedLibraryByElement(library!);
     if (result is ParsedLibraryResult) {
-      return result.getElementDeclaration(this)?.node;
+      return null; // TODO: Fix getNode extension for analyzer 8.0
     } else {
       return null;
     }
@@ -59,7 +59,7 @@ extension MethodImports on MethodElement {
   List<Uri> getImports() {
     return [
       ...returnType.getImports(),
-      ...parameters.expand((p) => p.type.getImports())
+      ...formalParameters.expand((p) => p.type.getImports())
     ];
   }
 }
@@ -68,7 +68,7 @@ extension TypeImports on DartType {
   List<Uri> getImports() {
     if (this is InterfaceType) return (this as InterfaceType).getImports();
     if (element?.library?.isInSdk ?? false) return [];
-    var uri = element?.library?.source.uri;
+    var uri = element?.library?.uri;
     return uri != null ? [uri] : [];
   }
 }
@@ -76,7 +76,7 @@ extension TypeImports on DartType {
 extension InterfaceTypeImports on InterfaceType {
   List<Uri> getImports() {
     return [
-      if (!element.library.isInSdk) element.library.source.uri,
+      if (!element.library.isInSdk) element.library.uri,
       ...typeArguments.expand((t) => t.getImports()),
     ];
   }
