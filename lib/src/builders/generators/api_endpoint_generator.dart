@@ -37,7 +37,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
 
     output.writeln(
         'mixin _${className}Mixin implements ApiEndpoint<$className> {\n'
-        '  List<ApiEndpoint> get endpoints;\n'
+        '  List<ApiEndpoint<dynamic>> get endpoints;\n'
         '\n'
         '  @override\n'
         '  void build(ApiBuilder builder) {');
@@ -53,7 +53,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
 
     if (annotation != null && !annotation.getField('codec')!.isNull) {
       var codec = getMetaProperty(element, 'codec', imports);
-      output.write('.withCodec($codec)');
+      output.write('.withCodec($codec())');
       var uri =
           annotation.getField('codec')!.type?.element?.library?.uri;
       if (uri != null) imports.add(uri);
@@ -94,7 +94,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
     }
 
     output.writeln('  @override\n'
-        '  List<ApiEndpoint> get endpoints => [');
+        '  List<ApiEndpoint<dynamic>> get endpoints => [');
 
     for (var child in children) {
       output.writeln('      ${child.constructedEndpoint},');
@@ -112,7 +112,7 @@ class ApiEndpointGenerator extends EndpointGenerator {
     }
 
     output.writeln('  @override\n'
-        '  List<ApiEndpoint> get endpoints => \n'
+        '  List<ApiEndpoint<dynamic>> get endpoints => \n'
         '    [${children.map((c) => '${c.propertyName}Endpoint').join(', ')}];\n'
         '}');
 

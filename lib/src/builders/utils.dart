@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:source_gen/source_gen.dart';
@@ -9,38 +10,42 @@ import 'imports_builder.dart';
 
 const annotationChecker = TypeChecker.typeNamed(ApiDefinition);
 
-String? getMetaProperty(Element annotatedElement, String property,
+String? getMetaProperty(Element element, String propertyName,
     [ImportsBuilder? imports]) {
-  var node = annotatedElement.getNode();
+  for (ElementAnnotation annotation in element.metadata.annotations) {
+    final DartObject? annotationValue = annotation.computeConstantValue();
+    if (annotationValue == null) continue;
 
-  NodeList<Annotation> annotations;
+    // Try to get the property from the annotation
+    final DartObject? propertyValue = annotationValue.getField(propertyName);
+    if (propertyValue == null) continue;
 
-  if (node is VariableDeclaration) {
-    var parent = node.parent?.parent;
-    if (parent is FieldDeclaration) {
-      annotations = parent.metadata;
-    } else {
-      return null;
+    // Try different ways to extract a string value
+
+    // Direct string value
+    final String? directString = propertyValue.toStringValue();
+    if (directString != null) return directString;
+
+    // If it's a reference to a const variable or class name
+    final Element? propertyElement = propertyValue.type?.element;
+    if (propertyElement != null) {
+      return propertyElement.name;
     }
-  } else if (node is Declaration) {
-    annotations = node.metadata;
-  } else {
-    return null;
+
+    // If it's an enum, get its string representation
+    if (propertyValue.type?.element is EnumElement) {
+      // For enum, you might want the enum value name
+      final enumName = propertyValue.getField('_name')?.toStringValue();
+      if (enumName != null) return enumName;
+    }
+
+    // If it's a Type reference (e.g., MyClass as a type literal)
+    final typeValue = propertyValue.toTypeValue();
+    if (typeValue != null) {
+      return typeValue.getDisplayString(withNullability: false);
+    }
   }
 
-  for (var annotation in annotations) {
-    if (annotation.name.name == (ApiDefinition).toString()) {
-      var props = annotation.arguments!.arguments
-          .whereType<NamedExpression>()
-          .where((e) => e.name.label.name == property);
-
-      if (props.isNotEmpty) {
-        var exp = props.first.expression;
-
-        return exp.toSource();
-      }
-    }
-  }
   return null;
 }
 

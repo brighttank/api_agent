@@ -37,7 +37,7 @@ class ClientApiBuilder {
   void generateClient(ClassElement element, Map<String, String> clients,
       ImportsBuilder imports) {
     if (clients.containsKey(element.name)) return;
-    clients[element.name ?? ''] = '';
+    clients[element.name!] = '';
 
     var annotation = annotationChecker.firstAnnotationOf(element);
 
@@ -49,9 +49,8 @@ class ClientApiBuilder {
 
     if (annotation != null && !annotation.getField('codec')!.isNull) {
       var codec = getMetaProperty(element, 'codec');
-      output.write(', $codec');
-      var uri =
-          annotation.getField('codec')!.type?.element?.library?.uri;
+      output.write(', $codec()');
+      var uri = annotation.getField('codec')!.type?.element?.library?.uri;
       if (uri != null) imports.add(uri);
     }
 
@@ -64,8 +63,21 @@ class ClientApiBuilder {
 
     for (var method in element.methods) {
       if (method.isAbstract) {
+        final positionalParams =
+                method.formalParameters.where((param) => param.isPositional),
+            optionalParams =
+                method.formalParameters.where((param) => param.isNamed);
+
+        String params = positionalParams.isEmpty
+            ? ''
+            : positionalParams.map((param) => param.toString()).join(', ');
+        if (optionalParams.isNotEmpty) {
+          params =
+              '{${optionalParams.map((param) => param.toString().substring(1).replaceFirst('}', '')).join(',\n')}}';
+        }
+
         methodOutput.write('\n'
-            '  ${method.name}\n'
+            '  ${method.returnType} ${method.name!}($params) => \n'
             '    request(\'${method.name}\', {');
 
         for (var param in method.formalParameters) {
@@ -112,6 +124,6 @@ class ClientApiBuilder {
 
     output.writeln('}');
 
-    clients[element.name ?? ''] = output.toString();
+    clients[element.name!] = output.toString();
   }
 }
